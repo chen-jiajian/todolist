@@ -9,14 +9,14 @@ interface IFetch {
     data: any;
 }
 import { onMounted, reactive, ref, watch } from "vue";
+const props = defineProps({cotalogId: String});
 
-//
 import { request } from "../tools/fetch.ts";
 let list: ItodoItem[] = reactive([]);
 const initList = () => {
     list.splice(0)
-    // console.log($http)
-    request("http://127.0.0.1:3000/list", {}).then((res: IFetch) => {
+    console.log('cotalogId', props.cotalogId)
+    request("http://127.0.0.1:3000/list?cotalogId="+props.cotalogId, {}).then((res: IFetch) => {
         console.log("fetrequestch response", res);
         if (res.code === 0) {
             const data: ItodoItem[] = res.data;
@@ -35,6 +35,7 @@ const addMethod = function (content: string) {
     const item = {
         content: content,
         state: false,
+        cotalog: props.cotalogId
         // id: getId(), 交给后台生成id
     };
     const config = {
@@ -63,7 +64,7 @@ const delMethod = function (id: string) {
 const updateMethod = function (id:string, state: boolean, content: string) {
     const config = {
         method: "POST",
-        body: JSON.stringify({ data: {id: id, state: state ? 1 : 0, content: content} }),
+        body: JSON.stringify({ data: {id: id, state: state ? 1 : 0, content: content, cotalog: props.cotalogId} }),
     };
     request("http://127.0.0.1:3000/update", config).then((res: IFetch) => {
         if (res.code === 0) {
@@ -74,15 +75,10 @@ const updateMethod = function (id:string, state: boolean, content: string) {
 const changeState = function (item:ItodoItem) {
     updateMethod(item.id, item.state, item.content)
 }
-// 生成id
-const currentId: Ref<number> = ref(1);
-const getId = function (): string {
-    currentId.value++;
-    return currentId.value + "";
-};
 defineExpose({
     addMethod: addMethod,
     list: list,
+    initList:initList
 });
 
 // 状态筛选
@@ -133,6 +129,8 @@ watch(filter, (filter, prevFilter) => {
 .list {
     min-height: 50px;
     width: 100%;
+    max-height: 400px;
+    overflow: auto;
 }
 .item {
     display: flex;

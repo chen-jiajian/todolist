@@ -8,6 +8,7 @@ onMounted(() => {
 </script>
 
 <template>
+    <h1>Daily Task</h1>
   <hello ref="hello" />
 </template>
 
